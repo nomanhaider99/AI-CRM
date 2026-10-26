@@ -1,0 +1,111 @@
+import { z } from "zod";
+import { currencySchema, emailSchema, idSchema, isoDateSchema, moneySchema } from "./common";
+import { clientEventTypeSchema, clientStatusSchema, invoiceStatusSchema, roleSchema } from "./enums";
+
+const name = z.string().trim().min(1).max(200);
+const optionalText = (max: number) => z.string().trim().max(max).optional();
+
+// Auth
+export const signupSchema = z.object({
+  name,
+  email: emailSchema,
+  password: z.string().min(8).max(128),
+});
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1).max(128),
+});
+
+// Workspaces, members, invitations
+export const createWorkspaceSchema = z.object({ name });
+export const updateWorkspaceSchema = z.object({ name, aiModel: z.string().trim().min(1).max(100) }).partial();
+export const createInvitationSchema = z.object({ email: emailSchema, role: roleSchema });
+export const updateMemberSchema = z.object({ role: roleSchema });
+
+// Clients and timeline
+export const createClientSchema = z.object({
+  name,
+  company: optionalText(200),
+  email: emailSchema.optional(),
+  phone: optionalText(50),
+  notes: optionalText(10_000),
+  status: clientStatusSchema.default("lead"),
+  ownerId: idSchema.optional(),
+});
+export const updateClientSchema = createClientSchema.partial();
+
+export const createClientEventSchema = z.object({
+  type: clientEventTypeSchema,
+  title: name,
+  body: optionalText(20_000),
+  amount: moneySchema.optional(),
+});
+
+// Deals (Kanban)
+export const createDealSchema = z.object({
+  clientId: idSchema,
+  title: name,
+  value: moneySchema.default(0),
+  currency: currencySchema.default("USD"),
+  stageId: idSchema,
+  ownerId: idSchema.optional(),
+});
+export const updateDealSchema = z
+  .object({
+    title: name,
+    value: moneySchema,
+    currency: currencySchema,
+    stageId: idSchema,
+    position: z.number().int().min(0),
+    ownerId: idSchema.nullable(),
+  })
+  .partial();
+
+// Invoices
+export const invoiceItemSchema = z.object({
+  description: z.string().trim().min(1).max(500),
+  qty: z.number().positive().max(1_000_000),
+  unitPrice: moneySchema,
+});
+export const createInvoiceSchema = z
+  .object({
+    clientId: idSchema,
+    dealId: idSchema.optional(),
+    currency: currencySchema.default("USD"),
+    issueDate: isoDateSchema,
+    dueDate: isoDateSchema.optional(),
+    items: z.array(invoiceItemSchema).min(1).max(200),
+  })
+  .refine((v) => !v.dueDate || v.dueDate >= v.issueDate, {
+    message: "Due date must be on or after issue date",
+    path: ["dueDate"],
+  });
+export const updateInvoiceSchema = z
+  .object({
+    status: invoiceStatusSchema,
+    dueDate: isoDateSchema.nullable(),
+    items: z.array(invoiceItemSchema).min(1).max(200),
+  })
+  .partial();
+
+// AI
+export const aiChatSchema = z.object({
+  conversationId: idSchema.optional(),
+  message: z.string().trim().min(1).max(4_000),
+});
+
+export type SignupInput = z.infer<typeof signupSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
+export type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema>;
+export type UpdateWorkspaceInput = z.infer<typeof updateWorkspaceSchema>;
+export type CreateInvitationInput = z.infer<typeof createInvitationSchema>;
+export type UpdateMemberInput = z.infer<typeof updateMemberSchema>;
+export type CreateClientInput = z.infer<typeof createClientSchema>;
+export type UpdateClientInput = z.infer<typeof updateClientSchema>;
+export type CreateClientEventInput = z.infer<typeof createClientEventSchema>;
+export type CreateDealInput = z.infer<typeof createDealSchema>;
+export type UpdateDealInput = z.infer<typeof updateDealSchema>;
+export type InvoiceItemInput = z.infer<typeof invoiceItemSchema>;
+export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
+export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema>;
+export type AiChatInput = z.infer<typeof aiChatSchema>;
