@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createClientSchema, createInvoiceSchema, listClientsQuerySchema, updateClientSchema, moneySchema, signupSchema, updateMemberSchema } from "./index";
+import { createClientSchema, createDealSchema, moveDealSchema, updateDealSchema, createInvoiceSchema, listClientsQuerySchema, updateClientSchema, moneySchema, signupSchema, updateMemberSchema } from "./index";
 
 const clientId = "6f1c7c1e-2b9a-4f5e-9c1a-1a2b3c4d5e6f";
 const item = { description: "Logo design", qty: 3, unitPrice: 50 };
@@ -53,5 +53,23 @@ describe("shared schemas", () => {
 
   it("defaults invoice currency to USD", () => {
     expect(createInvoiceSchema.parse({ clientId, issueDate: "2026-10-01", items: [item] }).currency).toBe("USD");
+  });
+
+  it("leaves a new deal's owner unset unless given, and accepts null for unassigned", () => {
+    const base = { clientId, stageId: clientId, title: "Logo" };
+    expect(createDealSchema.parse(base)).toEqual({ ...base, value: 0, currency: "USD" });
+    expect(createDealSchema.parse({ ...base, ownerId: null }).ownerId).toBeNull();
+  });
+
+  it("keeps stage and position out of deal updates", () => {
+    expect(updateDealSchema.safeParse({ stageId: clientId, position: 0 }).success).toBe(false);
+    expect(updateDealSchema.parse({ value: 10, position: 3 })).toEqual({ value: 10 });
+  });
+
+  it("requires a whole, non-negative position to move a deal", () => {
+    expect(moveDealSchema.safeParse({ stageId: clientId, position: 0 }).success).toBe(true);
+    for (const position of [-1, 1.5, "2", undefined]) {
+      expect(moveDealSchema.safeParse({ stageId: clientId, position }).success).toBe(false);
+    }
   });
 });

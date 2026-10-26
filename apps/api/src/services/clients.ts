@@ -38,7 +38,7 @@ const toEvent = <E extends { amount: string | null }>(e: E) => ({ ...e, amount: 
 const likePattern = (search: string) => `%${search.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 
 // Owners must belong to the workspace. memberships is under RLS, so another tenant's user is invisible here.
-async function assertMember(tx: Tx, ctx: TenantRef, userId: string) {
+export async function assertMember(tx: Tx, ctx: TenantRef, userId: string) {
   const [member] = await tx
     .select({ userId: memberships.userId })
     .from(memberships)

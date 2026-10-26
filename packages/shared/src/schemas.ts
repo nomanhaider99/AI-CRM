@@ -59,25 +59,36 @@ export const createClientEventSchema = z.object({
   amount: moneySchema.optional(),
 });
 
-// Deals (Kanban)
+// Deals (Kanban). ownerId: omitted = the creator, null = unassigned.
 export const createDealSchema = z.object({
   clientId: idSchema,
   title: name,
   value: moneySchema.default(0),
   currency: currencySchema.default("USD"),
   stageId: idSchema,
-  ownerId: idSchema.optional(),
+  ownerId: idSchema.nullable().optional(),
 });
+// Field edits only; stage and position change through moveDealSchema so columns stay ordered.
 export const updateDealSchema = z
   .object({
+    clientId: idSchema,
     title: name,
     value: moneySchema,
     currency: currencySchema,
-    stageId: idSchema,
-    position: z.number().int().min(0),
     ownerId: idSchema.nullable(),
   })
-  .partial();
+  .partial()
+  .refine((v) => Object.values(v).some((x) => x !== undefined), { message: "Provide at least one field to update" });
+// position is the 0-based index in the target column; past the end means last.
+export const moveDealSchema = z.object({
+  stageId: idSchema,
+  position: z.number().int().min(0).max(100_000),
+});
+export const listDealsQuerySchema = z.object({
+  stageId: idSchema.optional(),
+  ownerId: idSchema.optional(),
+  clientId: idSchema.optional(),
+});
 
 // Invoices
 export const invoiceItemSchema = z.object({
@@ -124,6 +135,8 @@ export type ListClientsQuery = z.infer<typeof listClientsQuerySchema>;
 export type CreateClientEventInput = z.infer<typeof createClientEventSchema>;
 export type CreateDealInput = z.infer<typeof createDealSchema>;
 export type UpdateDealInput = z.infer<typeof updateDealSchema>;
+export type MoveDealInput = z.infer<typeof moveDealSchema>;
+export type ListDealsQuery = z.infer<typeof listDealsQuerySchema>;
 export type InvoiceItemInput = z.infer<typeof invoiceItemSchema>;
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
 export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema>;
