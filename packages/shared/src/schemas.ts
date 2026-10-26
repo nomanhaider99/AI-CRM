@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { currencySchema, emailSchema, idSchema, isoDateSchema, moneySchema } from "./common";
+import { currencySchema, emailSchema, idSchema, isoDateSchema, moneySchema, paginationQuerySchema } from "./common";
 import { clientEventTypeSchema, clientStatusSchema, invoiceStatusSchema, roleSchema } from "./enums";
 
 const name = z.string().trim().min(1).max(200);
@@ -34,7 +34,23 @@ export const createClientSchema = z.object({
   status: clientStatusSchema.default("lead"),
   ownerId: idSchema.optional(),
 });
-export const updateClientSchema = createClientSchema.partial();
+// No defaults here (a PATCH must not reset unsent fields); null clears an optional field.
+export const updateClientSchema = z
+  .object({
+    name,
+    company: optionalText(200).nullable(),
+    email: emailSchema.nullable(),
+    phone: optionalText(50).nullable(),
+    notes: optionalText(10_000).nullable(),
+    status: clientStatusSchema,
+    ownerId: idSchema.nullable(),
+  })
+  .partial()
+  .refine((v) => Object.values(v).some((x) => x !== undefined), { message: "Provide at least one field to update" });
+export const listClientsQuerySchema = paginationQuerySchema.extend({
+  search: z.string().trim().max(200).optional(),
+  status: clientStatusSchema.optional(),
+});
 
 export const createClientEventSchema = z.object({
   type: clientEventTypeSchema,
@@ -104,6 +120,7 @@ export type CreateInvitationInput = z.infer<typeof createInvitationSchema>;
 export type UpdateMemberInput = z.infer<typeof updateMemberSchema>;
 export type CreateClientInput = z.infer<typeof createClientSchema>;
 export type UpdateClientInput = z.infer<typeof updateClientSchema>;
+export type ListClientsQuery = z.infer<typeof listClientsQuerySchema>;
 export type CreateClientEventInput = z.infer<typeof createClientEventSchema>;
 export type CreateDealInput = z.infer<typeof createDealSchema>;
 export type UpdateDealInput = z.infer<typeof updateDealSchema>;

@@ -27,6 +27,11 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     res.status(409).json({ error: "Already exists" });
     return;
   }
+  // 23503: a row is still referenced (e.g. deleting a client that has invoices)
+  if (code === "23503") {
+    res.status(409).json({ error: "Still referenced by other records" });
+    return;
+  }
   // 42501: an RLS WITH CHECK rejected a write outside the caller's workspace
   if (code === "42501") {
     res.status(403).json({ error: "Forbidden" });

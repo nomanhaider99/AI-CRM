@@ -6,6 +6,7 @@ import { env } from "./env";
 import { errorHandler, notFoundHandler } from "./middleware/errors";
 import { originCheck } from "./middleware/security";
 import { authRouter } from "./routes/auth";
+import { clientsRouter } from "./routes/clients";
 import { invitationsRouter } from "./routes/invitations";
 import { membersRouter } from "./routes/members";
 import { workspacesRouter } from "./routes/workspaces";
@@ -33,6 +34,7 @@ export function createApp(options: AppOptions = {}) {
   app.use("/api/workspaces", workspacesRouter);
   app.use("/api/members", membersRouter);
   app.use("/api/invitations", invitationsRouter);
+  app.use("/api/clients", clientsRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

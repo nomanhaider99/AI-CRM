@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createClientSchema, createInvoiceSchema, moneySchema, signupSchema, updateMemberSchema } from "./index";
+import { createClientSchema, createInvoiceSchema, listClientsQuerySchema, updateClientSchema, moneySchema, signupSchema, updateMemberSchema } from "./index";
 
 const clientId = "6f1c7c1e-2b9a-4f5e-9c1a-1a2b3c4d5e6f";
 const item = { description: "Logo design", qty: 3, unitPrice: 50 };
@@ -16,6 +16,19 @@ describe("shared schemas", () => {
 
   it("defaults client status to lead", () => {
     expect(createClientSchema.parse({ name: "John" }).status).toBe("lead");
+  });
+
+  it("does not inject defaults into a client update", () => {
+    expect(updateClientSchema.parse({ name: "John" })).toEqual({ name: "John" });
+  });
+
+  it("rejects an empty client update", () => {
+    expect(updateClientSchema.safeParse({}).success).toBe(false);
+  });
+
+  it("coerces and bounds client list pagination", () => {
+    expect(listClientsQuerySchema.parse({ limit: "10", offset: "20" })).toEqual({ limit: 10, offset: 20 });
+    expect(listClientsQuerySchema.safeParse({ limit: "101" }).success).toBe(false);
   });
 
   it("rejects unknown roles", () => {
