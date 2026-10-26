@@ -1,0 +1,239 @@
+@import "tailwindcss";
+
+/* Theme is resolved to data-theme="light" | "dark" on <html> before paint (see ThemeScript). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Semantic tokens. Components only use these (via the Tailwind names below), never raw colors.
+   Text pairs are chosen for at least 4.5:1 on their glass surface in both themes. */
+:root {
+  color-scheme: light;
+  --bg: #eef2f8;
+  --bg-blob-1: rgba(37, 99, 235, 0.22);
+  --bg-blob-2: rgba(234, 88, 12, 0.14);
+  --bg-blob-3: rgba(14, 165, 233, 0.18);
+  --fg: #0f172a;
+  --muted: #475569;
+  --subtle: #64748b;
+
+  --glass: rgba(255, 255, 255, 0.62);
+  --glass-strong: rgba(255, 255, 255, 0.86);
+  --glass-highlight: rgba(255, 255, 255, 0.75);
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.18);
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.12);
+  --shadow-lg: 0 24px 64px -16px rgba(15, 23, 42, 0.28);
+  --scrim: rgba(15, 23, 42, 0.42);
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --on-primary: #ffffff;
+  --primary-soft: rgba(37, 99, 235, 0.1);
+  --primary-text: #1d4ed8;
+  --accent: #ea580c;
+  --accent-soft: rgba(234, 88, 12, 0.12);
+  --accent-text: #c2410c;
+  --success-soft: rgba(22, 163, 74, 0.12);
+  --success-text: #15803d;
+  --warning-soft: rgba(217, 119, 6, 0.14);
+  --warning-text: #b45309;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+  --danger-text: #b91c1c;
+  --neutral-soft: rgba(100, 116, 139, 0.14);
+  --neutral-text: #475569;
+  --ring: #2563eb;
+
+  --bubble-mine: rgba(37, 99, 235, 0.1);
+  --bubble-mine-border: rgba(37, 99, 235, 0.24);
+  --bubble: rgba(255, 255, 255, 0.82);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #070b16;
+  --bg-blob-1: rgba(37, 99, 235, 0.3);
+  --bg-blob-2: rgba(234, 88, 12, 0.14);
+  --bg-blob-3: rgba(14, 165, 233, 0.18);
+  --fg: #e2e8f0;
+  --muted: #a3b1c6;
+  --subtle: #8b9ab0;
+
+  --glass: rgba(15, 23, 42, 0.58);
+  --glass-strong: rgba(15, 23, 42, 0.88);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+  --border: rgba(148, 163, 184, 0.16);
+  --border-strong: rgba(148, 163, 184, 0.3);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 64px -16px rgba(0, 0, 0, 0.7);
+  --scrim: rgba(2, 6, 23, 0.66);
+
+  /* Buttons keep #2563eb so white labels stay above 4.5:1; text-only uses lighter tints. */
+  --primary: #2563eb;
+  --primary-hover: #3b82f6;
+  --on-primary: #ffffff;
+  --primary-soft: rgba(59, 130, 246, 0.16);
+  --primary-text: #93c5fd;
+  --accent: #f97316;
+  --accent-soft: rgba(249, 115, 22, 0.16);
+  --accent-text: #fdba74;
+  --success-soft: rgba(34, 197, 94, 0.16);
+  --success-text: #86efac;
+  --warning-soft: rgba(245, 158, 11, 0.16);
+  --warning-text: #fcd34d;
+  --danger: #dc2626;
+  --danger-hover: #ef4444;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+  --danger-text: #fca5a5;
+  --neutral-soft: rgba(148, 163, 184, 0.16);
+  --neutral-text: #cbd5e1;
+  --ring: #60a5fa;
+
+  --bubble-mine: rgba(37, 99, 235, 0.22);
+  --bubble-mine-border: rgba(96, 165, 250, 0.3);
+  --bubble: rgba(30, 41, 59, 0.72);
+}
+
+@theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-glass-strong: var(--glass-strong);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-text: var(--primary-text);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-success-soft: var(--success-soft);
+  --color-success-text: var(--success-text);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-text: var(--warning-text);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-text: var(--danger-text);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-neutral-text: var(--neutral-text);
+  --color-ring: var(--ring);
+  --color-bubble: var(--bubble);
+  --color-bubble-mine: var(--bubble-mine);
+  --color-bubble-mine-border: var(--bubble-mine-border);
+
+  --shadow-glass: var(--shadow);
+  --shadow-float: var(--shadow-lg);
+}
+
+/* Frosted surface: translucent fill, blur, hairline border and a top light edge. */
+@utility glass {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+@utility glass-strong {
+  background: var(--glass-strong);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-lg);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Soft color field behind the glass; fixed so it does not repaint on scroll. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(40rem 30rem at 8% -5%, var(--bg-blob-1), transparent 70%),
+      radial-gradient(32rem 26rem at 100% 10%, var(--bg-blob-3), transparent 70%),
+      radial-gradient(36rem 28rem at 70% 110%, var(--bg-blob-2), transparent 70%);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
+  dialog::backdrop {
+    background: var(--scrim);
+    backdrop-filter: blur(4px);
+  }
+
+  ::selection {
+    background: var(--primary-soft);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-strong {
+    background: var(--glass-strong);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

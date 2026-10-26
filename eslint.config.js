@@ -1,7 +1,8 @@
+import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["**/node_modules/**", "**/dist/**", "**/.next/**", "**/drizzle/meta/**", ".claude/**"] },
+  { ignores: ["**/node_modules/**", "**/dist/**", "**/.next/**", "**/next-env.d.ts", "**/drizzle/meta/**", ".claude/**"] },
   ...tseslint.configs.recommended,
   {
     rules: {
@@ -13,5 +14,9 @@ export default tseslint.config(
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_", destructuredArrayIgnorePattern: "^_" },
       ],
     },
+  },
+  {
+    files: ["apps/web/**/*.{ts,tsx}"],
+    ...reactHooks.configs.flat.recommended,
   },
 );
