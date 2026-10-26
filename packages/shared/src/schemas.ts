@@ -21,6 +21,8 @@ export const createWorkspaceSchema = z.object({ name });
 export const updateWorkspaceSchema = z.object({ name, aiModel: z.string().trim().min(1).max(100) }).partial();
 export const createInvitationSchema = z.object({ email: emailSchema, role: roleSchema });
 export const updateMemberSchema = z.object({ role: roleSchema });
+// Invitation tokens are 32 random bytes, base64url encoded.
+export const invitationTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/, "Invalid invitation token");
 
 // Clients and timeline
 export const createClientSchema = z.object({

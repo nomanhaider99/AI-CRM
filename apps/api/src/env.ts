@@ -6,8 +6,17 @@ import { z } from "zod";
 config({ path: fileURLToPath(new URL("../../../.env", import.meta.url)), quiet: true });
 
 const envSchema = z.object({
-  DATABASE_URL: z.url(),
+  // Owner connection: migrations and test setup only. The API itself never uses it.
+  DATABASE_URL: z.url().optional(),
+  // Non-superuser role the API connects as, so RLS applies (created by `pnpm db:migrate`).
+  APP_DATABASE_URL: z.url(),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  API_PORT: z.coerce.number().int().positive().default(4000),
+  WEB_ORIGIN: z.url().default("http://localhost:3000"),
+  JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
+  SESSION_TTL_HOURS: z.coerce.number().positive().default(168),
+  AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(20), // login/signup attempts per IP per 15 min
+  TRUST_PROXY: z.stringbool().default(false),
 });
 
 export const env = envSchema.parse(process.env);

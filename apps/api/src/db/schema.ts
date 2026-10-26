@@ -60,6 +60,8 @@ export const users = pgTable(
     email: text("email").notNull(),
     passwordHash: text("password_hash").notNull(),
     name: text("name").notNull(),
+    // Embedded in every JWT; bumping it (logout) revokes all of the user's tokens.
+    sessionVersion: integer("session_version").notNull().default(0),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -320,7 +322,7 @@ export const usageCounters = pgTable(
   (t) => [primaryKey({ columns: [t.workspaceId, t.period, t.metric] })],
 );
 
-// Tables that carry workspace_id; step 2 enables RLS on each of these.
+// Tables that carry workspace_id. Migration 0003 enables and forces RLS on each of these.
 export const tenantTables = [
   memberships,
   invitations,
