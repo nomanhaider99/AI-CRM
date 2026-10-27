@@ -27,7 +27,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { label: "Clients", href: "/clients", icon: Users },
-  { label: "Pipeline", href: "/pipeline", icon: KanbanSquare, soon: true },
+  { label: "Pipeline", href: "/pipeline", icon: KanbanSquare },
   { label: "Invoices", href: "/invoices", icon: FileText, soon: true },
   { label: "Members", href: "/members", icon: UsersRound, soon: true },
   { label: "Settings", href: "/settings", icon: Settings, soon: true },
@@ -36,6 +36,9 @@ const NAV: NavItem[] = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const me = useMe();
   const router = useRouter();
+  const pathname = usePathname();
+  // The Kanban board uses the full width; other pages keep a readable measure.
+  const wide = pathname === "/pipeline";
   const [drawerOpen, setDrawerOpen] = useState(false);
   const needsWorkspace = me.data && !me.data.workspace;
 
@@ -91,7 +94,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-6xl px-4 pt-6 pb-16 outline-none sm:px-6">
+      <main id="main" tabIndex={-1} className={cn("mx-auto w-full px-4 pt-6 pb-16 outline-none sm:px-6", wide ? "max-w-none" : "max-w-6xl")}>
         {children}
       </main>
     </div>

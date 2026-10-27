@@ -6,6 +6,21 @@ export const formatDate = (iso: string) => dateFmt.format(new Date(iso));
 export const formatTime = (iso: string) => timeFmt.format(new Date(iso));
 export const formatAmount = (n: number) => amountFmt.format(n);
 
+const moneyFmts = new Map<string, Intl.NumberFormat>();
+/** "$1,200" style, without cents when there are none; falls back to "1,200.00 XYZ" for unknown codes. */
+export function formatMoney(n: number, currency: string): string {
+  let fmt = moneyFmts.get(currency);
+  if (!fmt) {
+    try {
+      fmt = new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 2, minimumFractionDigits: 0 });
+    } catch {
+      return `${amountFmt.format(n)} ${currency}`;
+    }
+    moneyFmts.set(currency, fmt);
+  }
+  return fmt.format(n);
+}
+
 /** "Today", "Yesterday" or a date, for timeline day separators. */
 export function dayLabel(iso: string, now = new Date()): string {
   const d = new Date(iso);

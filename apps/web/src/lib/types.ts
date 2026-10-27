@@ -58,3 +58,23 @@ export interface Page {
   limit: number;
   offset: number;
 }
+
+export interface Stage {
+  id: string;
+  name: string;
+  position: number;
+}
+
+export interface Deal {
+  id: string;
+  clientId: string;
+  clientName: string;
+  title: string;
+  value: number;
+  currency: string;
+  stageId: string;
+  position: number;
+  ownerId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
