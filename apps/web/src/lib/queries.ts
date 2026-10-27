@@ -13,6 +13,9 @@ export const queryKeys = {
   events: (clientId: string) => ["client", clientId, "events"] as const,
   stages: ["stages"] as const,
   deals: ["deals"] as const,
+  invoices: (params: Record<string, unknown>) => ["invoices", params] as const,
+  invoicesAll: ["invoices"] as const,
+  invoice: (id: string) => ["invoice", id] as const,
 };
 
 export const useMe = () => useQuery({ queryKey: queryKeys.me, queryFn: ({ signal }) => api<Me>("/auth/me", { signal }) });

@@ -29,6 +29,13 @@
       "when": 1792983502848,
       "tag": "0003_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793100475877,
+      "tag": "0004_invoices",
+      "breakpoints": true
     }
   ]
 }

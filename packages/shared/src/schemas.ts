@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { currencySchema, emailSchema, idSchema, isoDateSchema, moneySchema, paginationQuerySchema } from "./common";
 import { clientEventTypeSchema, clientStatusSchema, invoiceStatusSchema, roleSchema } from "./enums";
+import { invoiceTotals } from "./invoices";
 
 const name = z.string().trim().min(1).max(200);
 const optionalText = (max: number) => z.string().trim().max(max).optional();
@@ -91,31 +92,52 @@ export const listDealsQuerySchema = z.object({
 });
 
 // Invoices
+const twoDecimals = (n: number) => Math.abs(n * 100 - Math.round(n * 100)) < 1e-6;
 export const invoiceItemSchema = z.object({
   description: z.string().trim().min(1).max(500),
-  qty: z.number().positive().max(1_000_000),
+  qty: z.number().positive().max(1_000_000).refine(twoDecimals, { message: "At most 2 decimal places" }),
   unitPrice: moneySchema,
 });
+// The total is computed from the items, so it has to fit numeric(12,2) as well.
+const invoiceItemsSchema = z
+  .array(invoiceItemSchema)
+  .min(1, "Add at least one line item")
+  .max(200)
+  .refine((items) => invoiceTotals(items).withinLimit, { message: "The invoice total is too large" });
+const dueAfterIssue = (v: { issueDate?: string | undefined; dueDate?: string | null | undefined }) =>
+  !v.issueDate || !v.dueDate || v.dueDate >= v.issueDate;
+const dueAfterIssueError = { message: "Due date must be on or after issue date", path: ["dueDate"] };
+
+// A new invoice is a draft or already sent; it becomes paid through POST /invoices/:id/pay (or a status PATCH).
 export const createInvoiceSchema = z
   .object({
     clientId: idSchema,
     dealId: idSchema.optional(),
+    status: z.enum(["draft", "sent"]).default("draft"),
     currency: currencySchema.default("USD"),
     issueDate: isoDateSchema,
     dueDate: isoDateSchema.optional(),
-    items: z.array(invoiceItemSchema).min(1).max(200),
+    items: invoiceItemsSchema,
   })
-  .refine((v) => !v.dueDate || v.dueDate >= v.issueDate, {
-    message: "Due date must be on or after issue date",
-    path: ["dueDate"],
-  });
+  .refine(dueAfterIssue, dueAfterIssueError);
+// The client is fixed once the invoice exists. items replaces all line items. null clears dealId/dueDate.
 export const updateInvoiceSchema = z
   .object({
+    dealId: idSchema.nullable(),
     status: invoiceStatusSchema,
+    currency: currencySchema,
+    issueDate: isoDateSchema,
     dueDate: isoDateSchema.nullable(),
-    items: z.array(invoiceItemSchema).min(1).max(200),
+    items: invoiceItemsSchema,
   })
-  .partial();
+  .partial()
+  .refine((v) => Object.values(v).some((x) => x !== undefined), { message: "Provide at least one field to update" })
+  .refine(dueAfterIssue, dueAfterIssueError);
+export const listInvoicesQuerySchema = paginationQuerySchema.extend({
+  status: invoiceStatusSchema.optional(),
+  clientId: idSchema.optional(),
+  search: z.string().trim().max(200).optional(),
+});
 
 // AI
 export const aiChatSchema = z.object({
@@ -140,4 +162,5 @@ export type ListDealsQuery = z.infer<typeof listDealsQuerySchema>;
 export type InvoiceItemInput = z.infer<typeof invoiceItemSchema>;
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
 export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema>;
+export type ListInvoicesQuery = z.infer<typeof listInvoicesQuerySchema>;
 export type AiChatInput = z.infer<typeof aiChatSchema>;

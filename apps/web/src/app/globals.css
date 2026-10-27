@@ -250,3 +250,59 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Print: only the page content, on white, in the light palette, without glass or the color field.
+   App chrome opts out with print:hidden. */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  html[data-theme] {
+    color-scheme: light;
+    --bg: #ffffff;
+    --fg: #0f172a;
+    --muted: #475569;
+    --subtle: #64748b;
+    --glass: transparent;
+    --glass-strong: #ffffff;
+    --glass-highlight: transparent;
+    --border: rgba(15, 23, 42, 0.16);
+    --border-strong: rgba(15, 23, 42, 0.24);
+    --shadow: none;
+    --shadow-lg: none;
+    --primary-soft: rgba(37, 99, 235, 0.1);
+    --primary-text: #1d4ed8;
+    --success-soft: rgba(22, 163, 74, 0.12);
+    --success-text: #15803d;
+    --danger-soft: rgba(220, 38, 38, 0.1);
+    --danger-text: #b91c1c;
+    --neutral-soft: rgba(100, 116, 139, 0.14);
+    --neutral-text: #475569;
+  }
+
+  body {
+    background: #ffffff;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  body::before {
+    display: none;
+  }
+
+  .glass,
+  .glass-strong {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  /* The invoice is the paper: no card frame or padding of its own. */
+  .invoice-sheet {
+    max-width: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+}

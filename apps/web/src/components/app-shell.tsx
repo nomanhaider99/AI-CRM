@@ -28,7 +28,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { label: "Clients", href: "/clients", icon: Users },
   { label: "Pipeline", href: "/pipeline", icon: KanbanSquare },
-  { label: "Invoices", href: "/invoices", icon: FileText, soon: true },
+  { label: "Invoices", href: "/invoices", icon: FileText },
   { label: "Members", href: "/members", icon: UsersRound, soon: true },
   { label: "Settings", href: "/settings", icon: Settings, soon: true },
 ];
@@ -59,7 +59,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (!me.data || needsWorkspace) return <ShellSkeleton />;
 
   return (
-    <div className="min-h-dvh lg:pl-72">
+    <div className="min-h-dvh lg:pl-72 print:pl-0">
       <a
         href="#main"
         className="sr-only z-50 rounded-xl bg-primary px-4 py-2 font-semibold text-on-primary focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
@@ -67,7 +67,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
 
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 p-3 lg:block">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 p-3 lg:block print:hidden">
         <Sidebar me={me.data} />
       </aside>
 
@@ -75,7 +75,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Sidebar me={me.data} onNavigate={() => setDrawerOpen(false)} showThemeToggle />
       </MobileDrawer>
 
-      <header className="sticky top-0 z-20 px-3 pt-3">
+      <header className="sticky top-0 z-20 px-3 pt-3 print:hidden">
         <div className="glass flex h-16 items-center gap-2 rounded-2xl px-2 sm:px-4">
           <IconButton label="Open navigation" onClick={() => setDrawerOpen(true)} className="lg:hidden" aria-expanded={drawerOpen}>
             <Menu className="size-5" aria-hidden="true" />
@@ -94,7 +94,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main id="main" tabIndex={-1} className={cn("mx-auto w-full px-4 pt-6 pb-16 outline-none sm:px-6", wide ? "max-w-none" : "max-w-6xl")}>
+      <main id="main" tabIndex={-1} className={cn("mx-auto w-full px-4 pt-6 pb-16 outline-none sm:px-6 print:p-0", wide ? "max-w-none" : "max-w-6xl")}>
         {children}
       </main>
     </div>

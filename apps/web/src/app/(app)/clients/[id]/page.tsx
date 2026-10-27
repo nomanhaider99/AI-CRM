@@ -8,6 +8,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { ClientForm } from "@/components/clients/client-form";
 import { Timeline } from "@/components/clients/timeline";
+import { ClientInvoices } from "@/components/invoices/client-invoices";
 import { Avatar, StatusBadge } from "@/components/ui/badge";
 import { Button, LinkButton } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -74,7 +75,10 @@ export default function ClientDetailPage() {
       <title>{`${query.data.client.name} · AI CRM`}</title>
       {back}
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
-        <ClientInfo client={query.data.client} currentUserId={me.data.user.id} canDelete={role ? can(role, "clients:delete") : false} />
+        <div className="space-y-6">
+          <ClientInfo client={query.data.client} currentUserId={me.data.user.id} canDelete={role ? can(role, "clients:delete") : false} />
+          <ClientInvoices clientId={id} />
+        </div>
         <Timeline clientId={id} currentUserId={me.data.user.id} />
       </div>
     </>
@@ -105,7 +109,7 @@ function ClientInfo({ client, currentUserId, canDelete }: { client: Client; curr
     : null;
 
   return (
-    <section aria-labelledby="client-name" className="glass rounded-2xl p-5 sm:p-6 lg:sticky lg:top-24">
+    <section aria-labelledby="client-name" className="glass rounded-2xl p-5 sm:p-6">
       <div className="flex items-start gap-4">
         <Avatar name={client.name} size="lg" />
         <div className="min-w-0 flex-1">

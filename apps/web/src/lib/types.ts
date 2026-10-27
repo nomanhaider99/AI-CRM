@@ -1,4 +1,4 @@
-import type { ClientEventType, ClientStatus, Plan, Role } from "@crm/shared";
+import type { ClientEventType, ClientStatus, InvoiceStatus, Plan, Role } from "@crm/shared";
 
 // Response shapes of the API (apps/api/src/routes). Dates arrive as ISO strings.
 
@@ -77,4 +77,39 @@ export interface Deal {
   ownerId: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Invoice {
+  id: string;
+  number: string;
+  status: InvoiceStatus;
+  clientId: string;
+  clientName: string;
+  clientCompany: string | null;
+  clientEmail: string | null;
+  dealId: string | null;
+  /** null when there is no deal, or the deal belongs to another member and the caller is a seller. */
+  dealTitle: string | null;
+  dealOwnerId: string | null;
+  /** YYYY-MM-DD */
+  issueDate: string;
+  dueDate: string | null;
+  total: number;
+  currency: string;
+  paidAt: string | null;
+  createdBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InvoiceItem {
+  id: string;
+  description: string;
+  qty: number;
+  unitPrice: number;
+  amount: number;
+}
+
+export interface InvoiceDetail extends Invoice {
+  items: InvoiceItem[];
 }

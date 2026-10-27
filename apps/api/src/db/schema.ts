@@ -76,6 +76,9 @@ export const workspaces = pgTable("workspaces", {
     .references(() => users.id, { onDelete: "restrict" }),
   plan: planEnum("plan").notNull().default("free"),
   aiModel: text("ai_model").notNull().default("claude-sonnet-5-5"),
+  // Last invoice number issued (INV-0001 is 1). Incremented with UPDATE ... RETURNING, which row-locks
+  // the workspace, so concurrent creates get distinct, gapless-at-issue numbers.
+  invoiceSeq: integer("invoice_seq").notNull().default(0),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
@@ -198,6 +201,7 @@ export const invoices = pgTable(
     dueDate: date("due_date"),
     total: money("total").notNull().default("0"),
     currency: text("currency").notNull().default("USD"),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
     createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -219,9 +223,11 @@ export const invoiceItems = pgTable(
     description: text("description").notNull(),
     qty: numeric("qty", { precision: 12, scale: 2 }).notNull(),
     unitPrice: money("unit_price").notNull(),
+    // Line order on the invoice (items are written in one insert, so created_at cannot order them).
+    position: integer("position").notNull().default(0),
     createdAt: createdAt(),
   },
-  (t) => [index("invoice_items_invoice_idx").on(t.invoiceId)],
+  (t) => [index("invoice_items_invoice_idx").on(t.invoiceId, t.position)],
 );
 
 export const aiConversations = pgTable(
